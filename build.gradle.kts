@@ -29,6 +29,15 @@ dependencies {
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+
+	implementation("org.apache.httpcomponents.client5:httpclient5:5.4.1")
+	// https://mvnrepository.com/artifact/org.wiremock/wiremock
+	testImplementation("org.wiremock:wiremock-standalone:3.9.2")
+	testImplementation("io.kotest:kotest-assertions-core-jvm:5.9.1")
+	// bo timeout nie działał :<<
+//	testImplementation("org.junit.jupiter:junit-jupiter-engine:5.11.3")
+
 }
 
 kotlin {

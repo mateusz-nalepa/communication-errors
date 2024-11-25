@@ -4,8 +4,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class CommunicationerrorsApplication
+class CommunicationErrorsApplication
 
 fun main(args: Array<String>) {
-	runApplication<CommunicationerrorsApplication>(*args)
+	runApplication<CommunicationErrorsApplication>(*args)
 }
