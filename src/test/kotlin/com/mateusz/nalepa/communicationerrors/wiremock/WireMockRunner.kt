@@ -23,4 +23,10 @@ object WireMockRunner {
         wireMockServer.resetAll()
     }
 
+    fun stop() {
+        if (wireMockServer.isRunning) {
+            wireMockServer.stop()
+        }
+    }
+
 }

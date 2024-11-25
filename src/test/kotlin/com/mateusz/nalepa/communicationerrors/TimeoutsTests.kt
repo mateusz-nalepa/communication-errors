@@ -26,6 +26,13 @@ class TimeoutsTests : BaseTest() {
         // given
         val restClient = restClientBuilder.build()
 
+        WireMockRunner.wireMockServer.stubFor(
+            get(urlEqualTo("/oferty"))
+                .willReturn(
+                    aResponse().withFixedDelay(ofHours(1).toMillis().toInt())
+                )
+        )
+
         // when
         val resourceAccessException =
             assertThrows<ResourceAccessException> {
@@ -41,27 +48,27 @@ class TimeoutsTests : BaseTest() {
         socketTimeoutException.message shouldContain "Connection refused"
     }
 
-    @Test
-    // commented, cause it lasts 1 hour :D
-    fun `default - read timeout`() {
-        // given
-        WireMockRunner.start()
-        val restClient = restClientBuilder.build()
-
-        // and stub
-        WireMockRunner.wireMockServer.stubFor(
-            get(urlEqualTo("/oferty"))
-                .willReturn(
-                    aResponse().withFixedDelay(ofHours(1).toMillis().toInt())
-                )
-        )
-        // when
-        restClient
-            .get()
-            .uri("http://localhost:${WireMockRunner.wireMockPort}/oferty")
-            .retrieve()
-            .toEntity(String::class.java)
-    }
+//    @Test
+//    // commented, cause it lasts 1 hour :D
+//    fun `default - read timeout`() {
+//        // given
+//        WireMockRunner.start()
+//        val restClient = restClientBuilder.build()
+//
+//        // and stub
+//        WireMockRunner.wireMockServer.stubFor(
+//            get(urlEqualTo("/oferty"))
+//                .willReturn(
+//                    aResponse().withFixedDelay(ofHours(1).toMillis().toInt())
+//                )
+//        )
+//        // when
+//        restClient
+//            .get()
+//            .uri("http://localhost:${WireMockRunner.wireMockPort}/oferty")
+//            .retrieve()
+//            .toEntity(String::class.java)
+//    }
 
 //    @Test
 //    // don't know why it doesn't work
@@ -197,6 +204,7 @@ class TimeoutsTests : BaseTest() {
     }
 
     @Test
-    fun `ADVANCED - connection request timeout`() {}
+    fun `ADVANCED - connection request timeout`() {
+    }
 
 }

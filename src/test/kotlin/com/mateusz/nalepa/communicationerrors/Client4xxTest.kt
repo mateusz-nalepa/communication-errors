@@ -93,7 +93,7 @@ class Client4xxTest(
 
 
     @Test
-    fun `expects 415, due to underage person`() {
+    fun `expects 415, due to unsupported media type`() {
         // given
         WireMockRunner.start()
         val restClient = restClientBuilder.build()

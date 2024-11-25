@@ -15,6 +15,7 @@ class BaseTest {
     @AfterEach
     fun afterEach() {
         WireMockRunner.reset()
+        WireMockRunner.stop()
     }
 
 }
