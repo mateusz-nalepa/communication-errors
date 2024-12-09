@@ -1,4 +1,4 @@
-package com.mateusz.nalepa.communicationerrors
+package com.mateusz.nalepa.communicationerrors.retry
 
 import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.longs.shouldBeLessThanOrEqual

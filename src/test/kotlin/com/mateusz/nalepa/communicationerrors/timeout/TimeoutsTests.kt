@@ -1,6 +1,7 @@
-package com.mateusz.nalepa.communicationerrors
+package com.mateusz.nalepa.communicationerrors.timeout
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.mateusz.nalepa.communicationerrors.BaseTest
 import com.mateusz.nalepa.communicationerrors.wiremock.WireMockRunner
 import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.shouldBe
@@ -201,10 +202,6 @@ class TimeoutsTests : BaseTest() {
         val duration = System.currentTimeMillis() - measureStart
         duration shouldBeGreaterThanOrEqual givenReadTimeoutMillis.toLong()
         println("Duration is: $duration ms")
-    }
-
-    @Test
-    fun `ADVANCED - connection request timeout`() {
     }
 
 }

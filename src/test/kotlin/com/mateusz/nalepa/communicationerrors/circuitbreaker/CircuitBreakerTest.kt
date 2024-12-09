@@ -1,4 +1,4 @@
-package com.mateusz.nalepa.communicationerrors
+package com.mateusz.nalepa.communicationerrors.circuitbreaker
 
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry

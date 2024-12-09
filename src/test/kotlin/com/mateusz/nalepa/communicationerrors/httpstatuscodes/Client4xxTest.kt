@@ -1,5 +1,6 @@
-package com.mateusz.nalepa.communicationerrors
+package com.mateusz.nalepa.communicationerrors.httpstatuscodes
 
+import com.mateusz.nalepa.communicationerrors.BaseTest
 import com.mateusz.nalepa.communicationerrors.wiremock.WireMockRunner
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
