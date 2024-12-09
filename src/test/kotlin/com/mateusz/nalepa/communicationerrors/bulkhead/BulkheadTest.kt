@@ -20,7 +20,7 @@ class BulkheadTest {
         val measureStart = System.currentTimeMillis()
 
         // when
-        (0..29).map {
+        (1..30).map {
             futuresSlow.add(CompletableFuture.supplyAsync({ SlowExternalService.longRunningTask(it) }, executor))
             futuresFast.add(CompletableFuture.supplyAsync({ FastExternalService.fastTask(it) }, executor))
         }
@@ -55,7 +55,7 @@ class BulkheadTest {
         val measureStart = System.currentTimeMillis()
 
         // when
-        (0..29).map {
+        (1..30).map {
             futuresSlow.add(CompletableFuture.supplyAsync({ SlowExternalService.longRunningTask(it) }, executorSlow))
             futuresFast.add(CompletableFuture.supplyAsync({ FastExternalService.fastTask(it) }, executorFast))
         }
