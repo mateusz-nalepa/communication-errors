@@ -38,6 +38,7 @@ dependencies {
 	// bo timeout nie działał :<<
 //	testImplementation("org.junit.jupiter:junit-jupiter-engine:5.11.3")
 
+	implementation("io.github.resilience4j:resilience4j-all:2.2.0")
 }
 
 kotlin {
