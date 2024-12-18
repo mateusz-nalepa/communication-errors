@@ -10,15 +10,15 @@ data class BeerHolder(
                 listOf(
                     Beer(
                         name = "beer1",
-                        details = "najlepsze",
+                        details = "good",
                     ),
                     Beer(
                         name = "beer2",
-                        details = "dobre",
+                        details = "best",
                     ),
                     Beer(
                         name = "beer3",
-                        details = "najgorsze",
+                        details = "the best",
                     )
                 )
             )

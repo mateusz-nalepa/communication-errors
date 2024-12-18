@@ -24,7 +24,7 @@ class Client4xxTest(
         val restClient = restClientBuilder.build()
 
         // when
-        val request =
+        val requestIsNotValidJson =
             """
                 age
                 10
@@ -35,7 +35,7 @@ class Client4xxTest(
                 restClient
                     .post()
                     .uri("http://localhost:$port/beer/buy")
-                    .body(request)
+                    .body(requestIsNotValidJson)
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
                     .retrieve()
@@ -100,7 +100,7 @@ class Client4xxTest(
         val restClient = restClientBuilder.build()
 
         // when
-        val request =
+        val requestAsXml =
             """
                 <person>
                     <age>10</age>
@@ -112,7 +112,7 @@ class Client4xxTest(
                 restClient
                     .post()
                     .uri("http://localhost:$port/beer/buy")
-                    .body(request)
+                    .body(requestAsXml)
                     .accept(MediaType.APPLICATION_XML)
                     .contentType(MediaType.APPLICATION_XML)
                     .retrieve()

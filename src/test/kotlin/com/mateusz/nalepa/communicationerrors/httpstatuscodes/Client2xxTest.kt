@@ -1,8 +1,6 @@
 package com.mateusz.nalepa.communicationerrors.httpstatuscodes
 
 import com.mateusz.nalepa.communicationerrors.BaseTest
-import com.mateusz.nalepa.communicationerrors.api.BuyBeerRequest
-import com.mateusz.nalepa.communicationerrors.api.BuyBeerResponse
 import com.mateusz.nalepa.communicationerrors.wiremock.WireMockRunner
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
@@ -24,21 +22,25 @@ class Client2xxTest(
         val restClient = restClientBuilder.build()
 
         // when
-        val request = BuyBeerRequest(age = 20)
+        val request = """
+            {
+                "age": 20
+            }
+        """.trimIndent()
 
         val response =
-                restClient
-                    .post()
-                    .uri("http://localhost:$port/beer/buy")
-                    .body(request)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .retrieve()
-                    .toEntity(BuyBeerResponse::class.java)
+            restClient
+                .post()
+                .uri("http://localhost:$port/beer/buy")
+                .body(request)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .toEntity(String::class.java)
 
         // then
         response.statusCode shouldBe HttpStatus.OK
-        response.body shouldBe BuyBeerResponse("Beer Granted!")
+        response.body shouldBe "{\"text\":\"Beer Granted!\"}"
     }
 
 }

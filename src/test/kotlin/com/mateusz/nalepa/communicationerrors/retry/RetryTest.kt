@@ -6,8 +6,6 @@ import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-// TODO: poogarniaj ogólnie te testy XD
-// zawsze mierz liczbe retry
 class RetryTest {
 
     @Test
@@ -19,7 +17,7 @@ class RetryTest {
         lateinit var response: String
         for (i in 1..10) {
             try {
-                println("Attempt: $i of 3")
+                println("Attempt: $i of 10")
                 response = attemptHelper.provideResponse(i)
                 break
             } catch (t: Throwable) {
@@ -41,6 +39,7 @@ class RetryTest {
         lateinit var response: String
         for (i in 1..10) {
             try {
+                println("Attempt: $i of 10")
                 response = attemptHelper.provideResponse(i)
                 break
             } catch (t: Throwable) {
@@ -52,8 +51,8 @@ class RetryTest {
 
         val duration = System.currentTimeMillis() - measureStart
         println("Duration: $duration ms")
-        duration shouldBeGreaterThanOrEqual givenSuccessOnAttempt.toLong() * 100
-        duration shouldBeLessThanOrEqual (givenSuccessOnAttempt.toLong() + 1) * 100
+        duration shouldBeGreaterThanOrEqual (givenSuccessOnAttempt.toLong() - 1) * 100
+        duration shouldBeLessThanOrEqual (givenSuccessOnAttempt.toLong()) * 100
     }
 
     @Test
@@ -72,6 +71,7 @@ class RetryTest {
         lateinit var response: String
         for (i in 1..10) {
             try {
+                println("Attempt: $i of 10")
                 response = attemptHelper.provideResponse(i)
                 break
             } catch (t: Throwable) {
@@ -85,7 +85,7 @@ class RetryTest {
 
         val duration = System.currentTimeMillis() - measureStart
         println("Duration: $duration ms")
-        duration shouldBeLessThanOrEqual 550
+        duration shouldBeLessThanOrEqual 300
     }
 
     @Test
@@ -101,6 +101,7 @@ class RetryTest {
         lateinit var response: String
         for (i in 1..10) {
             try {
+                println("Attempt: $i of 10")
                 response = attemptHelper.provideResponse(i, RetryableException())
                 break
             } catch (t: Throwable) {
@@ -116,8 +117,8 @@ class RetryTest {
 
         val duration = System.currentTimeMillis() - measureStart
         println("Duration: $duration ms")
-        duration shouldBeGreaterThanOrEqual 300
-        duration shouldBeLessThanOrEqual 400
+        duration shouldBeGreaterThanOrEqual 200
+        duration shouldBeLessThanOrEqual 300
     }
 
     @Test
@@ -133,6 +134,7 @@ class RetryTest {
         assertThrows<SomeUnknownException> {
             for (i in 1..10) {
                 try {
+                    println("Attempt: $i of 10")
                     attemptHelper.provideResponse(i, SomeUnknownException())
                     break
                 } catch (t: Throwable) {
@@ -156,7 +158,7 @@ class RetryTest {
 
 class AttemptHelper(
     private var successOnAttempt: Int = 5,
-    private var attempts: Int = 0,
+    private var attempts: Int = 1,
 ) {
 
     fun provideResponse(actualAttemptNumber: Int, exception: RuntimeException = RuntimeException("XDD")): String {

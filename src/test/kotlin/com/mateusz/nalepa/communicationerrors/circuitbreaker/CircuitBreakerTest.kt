@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 
 
-// TODO: poogarniaj ogólnie te testy XD
 class CircuitBreakerTest {
 
     @Test
@@ -20,8 +19,6 @@ class CircuitBreakerTest {
                 .build()
 
         val circuitBreakerRegistry = CircuitBreakerRegistry.of(config)
-
-
         val circuitBreaker = circuitBreakerRegistry.circuitBreaker("testInstance")
 
         circuitBreaker.eventPublisher.onStateTransition { event ->
