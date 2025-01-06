@@ -166,6 +166,7 @@ class ConnectionRequestTimeoutWaitingInQueue(
         val futures = mutableListOf<Future<String>>()
 
         // warmup
+        println("START CLIENT WARMUP")
         executeRq(restClient)
         println("WARMUP DONE")
 
