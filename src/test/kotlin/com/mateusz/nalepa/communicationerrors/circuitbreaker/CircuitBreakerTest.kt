@@ -105,7 +105,6 @@ class CircuitBreakerTest {
 
         val circuitBreakerRegistry = CircuitBreakerRegistry.of(config)
 
-
         val circuitBreaker = circuitBreakerRegistry.circuitBreaker("testInstance")
 
         circuitBreaker.eventPublisher.onStateTransition { event ->

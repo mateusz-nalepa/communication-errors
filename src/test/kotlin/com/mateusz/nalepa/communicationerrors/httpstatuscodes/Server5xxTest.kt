@@ -28,6 +28,7 @@ class Server5xxTest(
             assertThrows<Throwable> {
                 restClient
                     .get()
+                    // when beerName is invalidBeer, then server throws HttpStatus 500
                     .uri("http://localhost:$port/beers/invalidBeer")
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()

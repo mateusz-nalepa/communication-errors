@@ -44,5 +44,4 @@ class ConnectTimeout : BaseTest() {
         socketTimeoutException.message shouldContain "Connection refused"
     }
 
-
 }

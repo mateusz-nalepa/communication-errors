@@ -11,28 +11,28 @@ class RetryTest {
     @Test
     fun `should retry 3 times`() {
         // given
-        val attemptHelper = AttemptHelper(successOnAttempt = 3)
+        val retryHelper = RetryHelper(successOnAttempt = 3)
 
         // when
         lateinit var response: String
         for (i in 1..10) {
             try {
                 println("Attempt: $i of 10")
-                response = attemptHelper.provideResponse(i)
+                response = retryHelper.provideResponse(i)
                 break
             } catch (t: Throwable) {
                 // do nothing
             }
         }
 
-        response shouldBe "OK"
+        response shouldBe retryHelper.successResponseValue()
     }
 
     @Test
     fun `should retry with sleep 3 times`() {
         // given
         val givenSuccessOnAttempt = 3
-        val attemptHelper = AttemptHelper(successOnAttempt = givenSuccessOnAttempt)
+        val retryHelper = RetryHelper(successOnAttempt = givenSuccessOnAttempt)
 
         // when
         val measureStart = System.currentTimeMillis()
@@ -40,14 +40,14 @@ class RetryTest {
         for (i in 1..10) {
             try {
                 println("Attempt: $i of 10")
-                response = attemptHelper.provideResponse(i)
+                response = retryHelper.provideResponse(i)
                 break
             } catch (t: Throwable) {
                 Thread.sleep(100)
             }
         }
 
-        response shouldBe "OK"
+        response shouldBe retryHelper.successResponseValue()
 
         val duration = System.currentTimeMillis() - measureStart
         println("Duration: $duration ms")
@@ -59,7 +59,7 @@ class RetryTest {
     fun `should retry with exponential backoff 3 times`() {
         // given
         val givenSuccessOnAttempt = 3
-        val attemptHelper = AttemptHelper(successOnAttempt = givenSuccessOnAttempt)
+        val retryHelper = RetryHelper(successOnAttempt = givenSuccessOnAttempt)
 
         val initialSleepMs: Long = 100
 
@@ -72,7 +72,7 @@ class RetryTest {
         for (i in 1..10) {
             try {
                 println("Attempt: $i of 10")
-                response = attemptHelper.provideResponse(i)
+                response = retryHelper.provideResponse(i)
                 break
             } catch (t: Throwable) {
                 println("Error, will sleep: $sleepMs ms until next retry")
@@ -81,7 +81,7 @@ class RetryTest {
             }
         }
 
-        response shouldBe "OK"
+        response shouldBe retryHelper.successResponseValue()
 
         val duration = System.currentTimeMillis() - measureStart
         println("Duration: $duration ms")
@@ -92,7 +92,7 @@ class RetryTest {
     fun `should retry only retryableException`() {
         // given
         val givenSuccessOnAttempt = 3
-        val attemptHelper = AttemptHelper(successOnAttempt = givenSuccessOnAttempt)
+        val retryHelper = RetryHelper(successOnAttempt = givenSuccessOnAttempt)
 
         val retryableExceptionClass = RetryableException::class.java.name
 
@@ -102,7 +102,7 @@ class RetryTest {
         for (i in 1..10) {
             try {
                 println("Attempt: $i of 10")
-                response = attemptHelper.provideResponse(i, RetryableException())
+                response = retryHelper.provideResponse(i, RetryableException())
                 break
             } catch (t: Throwable) {
                 if (t::class.java.name == retryableExceptionClass) {
@@ -113,7 +113,7 @@ class RetryTest {
             }
         }
 
-        response shouldBe "OK"
+        response shouldBe retryHelper.successResponseValue()
 
         val duration = System.currentTimeMillis() - measureStart
         println("Duration: $duration ms")
@@ -125,7 +125,7 @@ class RetryTest {
     fun `should not retry for unknown error`() {
         // given
         val givenSuccessOnAttempt = 3
-        val attemptHelper = AttemptHelper(successOnAttempt = givenSuccessOnAttempt)
+        val retryHelper = RetryHelper(successOnAttempt = givenSuccessOnAttempt)
 
         val retryableExceptionClass = RetryableException::class.java.name
 
@@ -135,7 +135,7 @@ class RetryTest {
             for (i in 1..10) {
                 try {
                     println("Attempt: $i of 10")
-                    attemptHelper.provideResponse(i, SomeUnknownException())
+                    retryHelper.provideResponse(i, SomeUnknownException())
                     break
                 } catch (t: Throwable) {
                     if (t::class.java.name == retryableExceptionClass) {
@@ -153,17 +153,20 @@ class RetryTest {
         duration shouldBeLessThanOrEqual 100
     }
 
-
 }
 
-class AttemptHelper(
+class RetryHelper(
     private var successOnAttempt: Int = 5,
     private var attempts: Int = 1,
 ) {
 
+    fun successResponseValue(): String {
+        return "OK"
+    }
+
     fun provideResponse(actualAttemptNumber: Int, exception: RuntimeException = RuntimeException("XDD")): String {
         if (attempts == successOnAttempt) {
-            return "OK"
+            return successResponseValue()
         }
 
         if (attempts <= actualAttemptNumber) {

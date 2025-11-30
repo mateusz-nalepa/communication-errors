@@ -1,5 +1,7 @@
 package com.mateusz.nalepa.communicationerrors.bulkhead_isolation
 
+import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.comparables.shouldBeLessThan
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
@@ -10,89 +12,108 @@ import java.util.concurrent.TimeUnit
 class BulkheadIsolationTest {
 
     @Test
-    fun `processing reqeusts on one pool`() {
+    fun `should process slow and fast requests in one poll`() {
         // given
-        val executor = Executors.newFixedThreadPool(10)
+        val executor = Executors.newFixedThreadPool(1)
 
-        val futuresSlow = mutableListOf<Future<String>>()
-        val futuresFast = mutableListOf<Future<String>>()
+        val futuresForSlowRunningService = mutableListOf<Future<String>>()
+        val futuresForFastRunningService = mutableListOf<Future<String>>()
+
+        var timeToEndRequestsForSlowService: Duration = Duration.ZERO
+        var timeToEndRequestsForFastService: Duration = Duration.ZERO
 
         val measureStart = System.currentTimeMillis()
 
         // when
-        (1..30).map {
-            futuresSlow.add(CompletableFuture.supplyAsync({ SlowExternalService.longRunningTask(it) }, executor))
-            futuresFast.add(CompletableFuture.supplyAsync({ FastExternalService.fastTask(it) }, executor))
+        (1..3).map {
+            futuresForSlowRunningService.add(
+                CompletableFuture.supplyAsync(
+                    { SlowExternalService.longRunningTask(it) },
+                    executor
+                )
+            )
+            futuresForFastRunningService.add(
+                CompletableFuture.supplyAsync(
+                    { FastExternalService.fastTask(it) },
+                    executor
+                )
+            )
         }
 
         // then
         val threadForSlow = Thread {
-            futuresSlow.forEach { println(it.get(1, TimeUnit.DAYS)) }
-            val duration = Duration.ofMillis(System.currentTimeMillis() - measureStart)
-            println("SLOW Processing took: $duration")
+            futuresForSlowRunningService.forEach { println(it.get(1, TimeUnit.DAYS)) }
+            timeToEndRequestsForSlowService = Duration.ofMillis(System.currentTimeMillis() - measureStart)
+            println("SLOW requests.  Processing took: $timeToEndRequestsForSlowService")
         }
         threadForSlow.start()
 
         val threadForFast = Thread {
-            futuresFast.forEach { println(it.get(1, TimeUnit.DAYS)) }
-            val duration = Duration.ofMillis(System.currentTimeMillis() - measureStart)
-            println("FAST Processing took: $duration")
+            futuresForFastRunningService.forEach { println(it.get(1, TimeUnit.DAYS)) }
+            timeToEndRequestsForFastService = Duration.ofMillis(System.currentTimeMillis() - measureStart)
+            println("FAST requests.  Processing took: $timeToEndRequestsForFastService")
         }
         threadForFast.start()
 
-        Thread.sleep(Duration.ofSeconds(20))
+        threadForSlow.join()
+        threadForFast.join()
+
+        // THEN
+        timeToEndRequestsForSlowService shouldBeGreaterThan Duration.ofSeconds(6)
+        timeToEndRequestsForFastService shouldBeGreaterThan Duration.ofSeconds(6) // it should be fast, but it's slow, due to one pool
     }
 
     @Test
-    fun `processing reqeusts on two pools`() {
+    fun `should process slow and fast requests in two poll`() {
         // given
-        val executorSlow = Executors.newFixedThreadPool(10)
-        val executorFast = Executors.newFixedThreadPool(10)
+        val executorSlow = Executors.newFixedThreadPool(1)
+        val executorFast = Executors.newFixedThreadPool(1)
 
-        val futuresSlow = mutableListOf<Future<String>>()
-        val futuresFast = mutableListOf<Future<String>>()
+        val futuresForSlowRunningService = mutableListOf<Future<String>>()
+        val futuresForFastRunningService = mutableListOf<Future<String>>()
+
+        var timeToEndRequestsForSlowService: Duration = Duration.ZERO
+        var timeToEndRequestsForFastService: Duration = Duration.ZERO
 
         val measureStart = System.currentTimeMillis()
 
         // when
-        (1..30).map {
-            futuresSlow.add(CompletableFuture.supplyAsync({ SlowExternalService.longRunningTask(it) }, executorSlow))
-            futuresFast.add(CompletableFuture.supplyAsync({ FastExternalService.fastTask(it) }, executorFast))
+        (1..3).map {
+            futuresForSlowRunningService.add(
+                CompletableFuture.supplyAsync(
+                    { SlowExternalService.longRunningTask(it) },
+                    executorSlow
+                )
+            )
+            futuresForFastRunningService.add(
+                CompletableFuture.supplyAsync(
+                    { FastExternalService.fastTask(it) },
+                    executorFast
+                )
+            )
         }
 
         // then
         val threadForSlow = Thread {
-            futuresSlow.forEach { println(it.get(1, TimeUnit.DAYS)) }
-            val duration = Duration.ofMillis(System.currentTimeMillis() - measureStart)
-            println("SLOW Processing took: $duration")
+            futuresForSlowRunningService.forEach { println(it.get(1, TimeUnit.DAYS)) }
+            timeToEndRequestsForSlowService = Duration.ofMillis(System.currentTimeMillis() - measureStart)
+            println("SLOW requests. Processing took: $timeToEndRequestsForSlowService")
         }
         threadForSlow.start()
 
         val threadForFast = Thread {
-            futuresFast.forEach { println(it.get(1, TimeUnit.DAYS)) }
-            val duration = Duration.ofMillis(System.currentTimeMillis() - measureStart)
-            println("FAST Processing took: $duration")
+            futuresForFastRunningService.forEach { println(it.get(1, TimeUnit.DAYS)) }
+            timeToEndRequestsForFastService = Duration.ofMillis(System.currentTimeMillis() - measureStart)
+            println("Fast requests. Processing took: $timeToEndRequestsForFastService")
         }
         threadForFast.start()
 
-        Thread.sleep(Duration.ofSeconds(20))
-    }
+        threadForSlow.join()
+        threadForFast.join()
 
-}
-
-private object SlowExternalService {
-
-    fun longRunningTask(i: Int): String {
-        Thread.sleep(5_000)
-        return "SLOW - OK. Index: $i"
-    }
-
-}
-
-private object FastExternalService {
-
-    fun fastTask(i: Int): String {
-        return "FAST - OK. Index: $i"
+        // THEN
+        timeToEndRequestsForSlowService shouldBeGreaterThan Duration.ofSeconds(6)
+        timeToEndRequestsForFastService shouldBeLessThan Duration.ofSeconds(1)
     }
 
 }
